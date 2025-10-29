@@ -7,7 +7,7 @@ import * as git from './git';
 import * as github from './github-utils';
 import type { Inputs, RepoContext } from './types';
 
-const ALLOWED_EVENTS = ['pull_request_target', 'pull_request'];
+const ALLOWED_EVENTS = ['pull_request_target', 'pull_request', 'workflow_dispatch'];
 
 export async function run(
 	context: typeof contextType,
@@ -47,7 +47,11 @@ export async function run(
 			// Get the previous release built
 			const previousRelease = await balena.getReleaseByTags(inputs.fleet, {
 				sha: repoContext.sha,
-				pullRequestId: repoContext.pullRequest.id,
+				...(
+					repoContext.pullRequest
+						? { pullRequestId: repoContext.pullRequest.id }
+						: null
+				),
 			});
 			if (!previousRelease) {
 				throw new Error(
@@ -127,7 +131,11 @@ export async function run(
 		buildOptions = {
 			tags: {
 				sha: repoContext.sha,
-				pullRequestId: repoContext.pullRequest!.id,
+				...(
+					repoContext.pullRequest
+						? { pullRequestId: repoContext.pullRequest.id }
+						: null
+				),
 			},
 		};
 	}
