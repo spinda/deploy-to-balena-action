@@ -7,7 +7,8 @@ import * as git from './git';
 import * as github from './github-utils';
 import type { Inputs, RepoContext } from './types';
 
-const ALLOWED_EVENTS = ['pull_request_target', 'pull_request', 'workflow_dispatch'];
+const PR_EVENTS = new Set(['pull_request_target', 'pull_request', 'workflow_dispatch']);
+const ALLOWED_EVENTS = new Set([...PR_EVENTS, 'workflow_dispatch']);
 
 export async function run(
 	context: typeof contextType,
@@ -118,7 +119,7 @@ export async function run(
 				...(!!tagName && { tag: tagName }),
 			},
 		};
-	} else if (!ALLOWED_EVENTS.includes(context.eventName)) {
+	} else if (!ALLOWED_EVENTS.has(context.eventName)) {
 		// Make sure the only events now are ones we expect
 		if (context.eventName === 'push') {
 			throw new Error(
@@ -127,8 +128,9 @@ export async function run(
 		}
 		throw new Error(`Unsure how to proceed with event: ${context.eventName}`);
 	} else {
-		// Make a draft release because context is PR workflow
 		buildOptions = {
+			// Make a draft release if context is PR workflow
+			draft: PR_EVENTS.has(context.eventName),
 			tags: {
 				sha: repoContext.sha,
 				...(
