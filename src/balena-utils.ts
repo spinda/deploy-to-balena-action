@@ -57,10 +57,12 @@ export async function push(
 		return 1910442; // Do not actually build if this code is not being ran by Github
 	}
 
+	core.debug(`input build options: ${JSON.stringify(options)}`);
 	const buildOpt = {
 		...DEFAULT_BUILD_OPTIONS,
 		...options,
 	} as BuildOptions;
+	core.debug(`final build options: ${JSON.stringify(buildOpt)}`);
 
 	// Check if we want to use a cache release
 	if (useCache) {
