@@ -7,7 +7,7 @@ import * as git from './git';
 import * as github from './github-utils';
 import type { Inputs, RepoContext } from './types';
 
-const PR_EVENTS = new Set(['pull_request_target', 'pull_request', 'workflow_dispatch']);
+const PR_EVENTS = new Set(['pull_request_target', 'pull_request']);
 const ALLOWED_EVENTS = new Set([...PR_EVENTS, 'workflow_dispatch']);
 
 export async function run(
